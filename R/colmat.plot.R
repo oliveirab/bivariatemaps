@@ -13,7 +13,7 @@
 #' @param bottomright bottomright color of color matrix
 #' @param xlab character variable
 #' @param ylab character variable
-colmat.plot<-function(nquantiles=10, upperleft="blue", upperright="red", bottomleft="grey", bottomright="yellow", xlab="x label", ylab="y label"){
+colmat.plot<-function(nquantiles=10, upperleft="blue", upperright="red", bottomleft="grey", bottomright="yellow", xlab="x label", ylab="y label",cex=0.5,cex.lab=1.3){
   my.data<-seq(0,1,.01)
   my.class<-classInt::classIntervals(my.data,n=nquantiles,style="quantile")
   my.pal.1<-classInt::findColours(my.class,c(upperleft,bottomleft))
@@ -22,7 +22,7 @@ colmat.plot<-function(nquantiles=10, upperleft="blue", upperright="red", bottoml
   for(i in 1:101){
     my.col<-c(paste(my.pal.1[i]),paste(my.pal.2[i]))
     col.matrix[102-i,]<-classInt::findColours(my.class,my.col)}
-  plot(c(1,1),pch=19,col=my.pal.1, cex=0.5,xlim=c(0,1),ylim=c(0,1),frame.plot=F, xlab=xlab, ylab=ylab,cex.lab=1.3)
+  plot(c(1,1),pch=19,col=my.pal.1, cex=cex,xlim=c(0,1),ylim=c(0,1),frame.plot=F, xlab=xlab, ylab=ylab,cex.lab=cex.lab)
   for(i in 1:101){
     col.temp<-col.matrix[i-1,]
     graphics::points(my.data,rep((i-1)/100,101),pch=15,col=col.temp, cex=1)}
