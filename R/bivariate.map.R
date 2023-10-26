@@ -8,7 +8,9 @@
 #' @param rastery raster
 #' @param colormatrix color matrix from colmat() function
 #' @param nquantiles number of quantiles in color matrix (same as used when using colmat() function)
-bivariate.map<-function(rasterx, rastery, colormatrix, nquantiles=10){
+bivariate.map<-function(rasterx, rastery, colormatrix, nquantiles=10,ncores=NULL){
+  require(pbapply)
+  require(terra)
   quanmean <- rasterx[]
   temp <- data.frame(quanmean, quantile = rep(NA, length(quanmean)))
   brks <- with(temp, stats::quantile(temp, na.rm = TRUE, probs = c(seq(0,
@@ -32,11 +34,19 @@ bivariate.map<-function(rasterx, rastery, colormatrix, nquantiles=10){
     ifelse(is.na(col.matrix2[i]), col.matrix2[i] <- 1, col.matrix2[i] <- which(col.matrix2[i] ==
                                                                                  cn)[1])
   }
-  cols <- pbapply::pbsapply(1:length(quantr[, 1]), function(i){
-    a <- as.numeric.factor(quantr[i, 1])
-    b <- as.numeric.factor(quantr2[i, 1])
-    as.numeric(col.matrix2[b, a])
-  })
+  if(is.null(ncores)){
+    cols <- pbapply::pbsapply(1:length(quantr[, 1]), function(i){
+      a <- as.numeric.factor(quantr[i, 1])
+      b <- as.numeric.factor(quantr2[i, 1])
+      as.numeric(col.matrix2[b, a])
+    })
+  } else {
+    cols <- pbapply::pbsapply(1:length(quantr[, 1]), function(i){
+      a <- as.numeric.factor(quantr[i, 1])
+      b <- as.numeric.factor(quantr2[i, 1])
+      as.numeric(col.matrix2[b, a])
+    }, cl = ncores)
+  }
   r <- rasterx
   r[] <- cols
   return(r)
