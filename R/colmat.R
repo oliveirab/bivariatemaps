@@ -28,4 +28,6 @@ colmat<-function(nquantiles=10, upperleft="blue", upperright="red", bottomleft="
     graphics::points(my.data,rep((i-1)/100,101),pch=15,col=col.temp, cex=1)}
   seqs<-seq(0,100,(100/nquantiles))
   seqs[1]<-1
-  col.matrix<-col.matrix[c(seqs), c(seqs)]}
+  col.matrix<-col.matrix[c(seqs), c(seqs)]
+  return(col.matrix)
+}
