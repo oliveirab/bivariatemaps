@@ -34,18 +34,22 @@ bivariate.map<-function(rasterx, rastery, colormatrix, nquantiles=10,ncores=NULL
     ifelse(is.na(col.matrix2[i]), col.matrix2[i] <- 1, col.matrix2[i] <- which(col.matrix2[i] ==
                                                                                  cn)[1])
   }
-  if(is.null(ncores)){
-    cols <- pbapply::pbsapply(1:length(quantr[, 1]), function(i){
+  if (is.null(ncores)) {
+    cols <- pbapply::pbsapply(1:length(quantr[, 1]), function(i) {
       a <- as.numeric.factor(quantr[i, 1])
       b <- as.numeric.factor(quantr2[i, 1])
       as.numeric(col.matrix2[b, a])
     })
-  } else {
-    cols <- pbapply::pbsapply(1:length(quantr[, 1]), function(i){
+  }
+  else {
+    library(parallel)
+    cl <- makeCluster(ncores)
+    clusterExport(cl, c("col.matrix2", "quantr", "quantr2","as.numeric.factor"))
+    cols <- pbapply::pbsapply(1:length(quantr[, 1]), function(i) {
       a <- as.numeric.factor(quantr[i, 1])
       b <- as.numeric.factor(quantr2[i, 1])
       as.numeric(col.matrix2[b, a])
-    }, cl = ncores)
+    }, cl = cl)
   }
   r <- rasterx
   r[] <- cols
