@@ -44,12 +44,13 @@ bivariate.map<-function(rasterx, rastery, colormatrix, nquantiles=10,ncores=NULL
   else {
     library(parallel)
     cl <- makeCluster(ncores)
-    clusterExport(cl, c("col.matrix2", "quantr", "quantr2","as.numeric.factor"))
+    clusterExport(cl, c("col.matrix2", "quantr", "quantr2","as.numeric.factor"),envir=environment())
     cols <- pbapply::pbsapply(1:length(quantr[, 1]), function(i) {
       a <- as.numeric.factor(quantr[i, 1])
       b <- as.numeric.factor(quantr2[i, 1])
       as.numeric(col.matrix2[b, a])
     }, cl = cl)
+    stopCluster(cl)
   }
   r <- rasterx
   r[] <- cols
