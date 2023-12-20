@@ -9,6 +9,7 @@
 #' @param colormatrix color matrix from colmat() function
 #' @param nquantiles number of quantiles in color matrix (same as used when using colmat() function)
 bivariate.map<-function(rasterx, rastery, colormatrix, nquantiles=10,ncores=NULL){
+  colormatrix <- colormatrix[[1]]
   require(pbapply)
   require(terra)
   quanmean <- rasterx[]
