@@ -8,7 +8,7 @@
 #' @param rastery raster
 #' @param colormatrix color matrix from colmat() function
 #' @param nquantiles number of quantiles in color matrix (same as used when using colmat() function)
-bivariate.map<-function(rasterx, rastery, colormatrix, nquantiles=10,ncores=NULL){
+bivariate.map<-function(rasterx, rastery, colormatrix, nquantiles=10){
   colormatrix <- colormatrix[[1]]
   require(pbapply)
   require(terra)
@@ -35,24 +35,13 @@ bivariate.map<-function(rasterx, rastery, colormatrix, nquantiles=10,ncores=NULL
     ifelse(is.na(col.matrix2[i]), col.matrix2[i] <- 1, col.matrix2[i] <- which(col.matrix2[i] ==
                                                                                  cn)[1])
   }
-  if (is.null(ncores)) {
-    cols <- pbapply::pbsapply(1:length(quantr[, 1]), function(i) {
-      a <- as.numeric.factor(quantr[i, 1])
-      b <- as.numeric.factor(quantr2[i, 1])
-      as.numeric(col.matrix2[b, a])
+    v1 <- as.numeric.factor(quantr[, 1])
+    v2 <- as.numeric.factor(quantr2[, 1])
+
+    cols <- pbapply::pbsapply(1:length(v1), function(i) {
+      as.numeric(col.matrix2[v1[i], v2[i]])
     })
-  }
-  else {
-    library(parallel)
-    cl <- makeCluster(ncores)
-    clusterExport(cl, c("col.matrix2", "quantr", "quantr2","as.numeric.factor"),envir=environment())
-    cols <- pbapply::pbsapply(1:length(quantr[, 1]), function(i) {
-      a <- as.numeric.factor(quantr[i, 1])
-      b <- as.numeric.factor(quantr2[i, 1])
-      as.numeric(col.matrix2[b, a])
-    }, cl = cl)
-    stopCluster(cl)
-  }
+
   r <- rasterx
   r[] <- cols
   return(r)
