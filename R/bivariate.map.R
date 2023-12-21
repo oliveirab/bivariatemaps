@@ -1,16 +1,18 @@
 #' bivariate.map: Create a Bivariate Map
 #' @export
+#' @examples
+#' # https://rfunctions.blogspot.com/2015/03/bivariate-maps-bivariatemap-function.html
 #' @description Creates a Bivariate Map using two rasters and a color matrix created with colmat() function.
 #' @return A plot with the bivariate map.
 #' @param rasterx raster
 #' @param rastery raster
 #' @param colormatrix color matrix from colmat() function
 #' @param nbreaks number of breaks in color matrix (same as used when using colmat() function)
-bivariate.map<-function(rasterx, rastery, colormatrix, nbreaks=10){
+bivariate.map <- function(rasterx, rastery, colourmatrix = col.matrix) {
+
   require(terra)
   require(classInt)
-  # export.colour.matrix will export a data.frame of rastervalues and RGB codes
-  # to the global environment outname defines the name of the data.frame
+
   quanx <- rasterx[]
   tempx <- data.frame(quanx, quantile = rep(NA, length(quanx)))
   brks <- with(tempx, classIntervals(quanx,
@@ -48,30 +50,11 @@ bivariate.map<-function(rasterx, rastery, colormatrix, nbreaks=10){
            )[1]
     )
   }
-  # Export the colour.matrix to data.frame() in the global env
-  # Can then save with write.table() and use in ArcMap/QGIS
-  # Need to save the output raster as integer data-type
-  if (export.colour.matrix) {
-    # create a dataframe of colours corresponding to raster values
-    exportCols <- as.data.frame(cbind(
-      as.vector(col.matrix2), as.vector(colourmatrix),
-      t(col2rgb(as.vector(colourmatrix)))
-    ))
-    # rename columns of data.frame()
-    colnames(exportCols)[1:2] <- c("rasValue", "HEX")
-    # Export to the global environment
-    assign(
-      x = outname,
-      value = exportCols,
-      pos = .GlobalEnv
-    )
-  }
-  cols <- numeric(length(quantr[, 1]))
-  for (i in 1:length(quantr[, 1])) {
-    a <- as.numeric.factor(quantr[i, 1])
-    b <- as.numeric.factor(quantr2[i, 1])
-    cols[i] <- as.numeric(col.matrix2[b, a])
-  }
+  v1 <- as.numeric.factor(quantr[, 1])
+  v2 <- as.numeric.factor(quantr2[, 1])
+  cols <- pbapply::pbsapply(1:length(v1), function(i) {
+    as.numeric(col.matrix2[v1[i], v2[i]])
+  })
   r <- rasterx
   r[1:length(r)] <- cols
   return(r)
