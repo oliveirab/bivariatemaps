@@ -72,14 +72,17 @@ colmat <- function(nbreaks = 3, breakstyle = "quantile",
     mutate("UID" = row_number())
   # Use plotLeg if you want a preview of the legend
   if (plotLeg) {
-    p <- ggplot(col.matrix.plot, aes(X, Y, fill = HEXCode)) +
-      geom_tile() +
+    p <- ggplot(col.matrix.plot, aes((X*2)/10, (Y*2)/10, fill = HEXCode)) +
+      geom_raster() +
       scale_fill_identity() +
       coord_equal(expand = FALSE) +
-      theme_void() +
+      theme_minimal() +
+      scale_x_continuous(breaks = seq(0, 1, by=0.2)) +
+      scale_y_continuous(breaks = seq(0, 1, by=0.2))+
       theme(aspect.ratio = 1,
-            axis.title = element_text(size = 12, colour = "black",hjust = 0.5,
+            axis.title = element_text(size = 10, colour = "black",hjust = 0.5,
                                       vjust = 1),
+            axis.text = element_text(size = 8),
             axis.title.y = element_text(angle = 90, hjust = 0.5)) +
       xlab(bquote(.(xlab) ~  symbol("\256"))) +
       ylab(bquote(.(ylab) ~  symbol("\256")))
