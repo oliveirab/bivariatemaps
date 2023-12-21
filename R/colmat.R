@@ -48,8 +48,7 @@ colmat <- function(nbreaks = 3, breakstyle = "quantile",
   # Default uses terciles (Lucchesi and Wikle [2017] doi: 10.1002/sta4.150)
   my.class <- classInt::classIntervals(my.data,
                                        n = nbreaks,
-                                       style = breakstyle,
-  )
+                                       style = breakstyle)
   my.pal.1 <- classInt::findColours(my.class, c(upperleft, bottomleft))
   my.pal.2 <- classInt::findColours(my.class, c(upperright, bottomright))
   col.matrix <- matrix(nrow = 101, ncol = 101, NA)
@@ -57,7 +56,6 @@ colmat <- function(nbreaks = 3, breakstyle = "quantile",
     my.col <- c(paste(my.pal.1[i]), paste(my.pal.2[i]))
     col.matrix[102 - i, ] <- classInt::findColours(my.class, my.col)
   }
-  ## need to convert this to data.table at some stage.
   col.matrix.plot <- col.matrix %>%
     as.data.frame(.) %>%
     mutate("Y" = row_number()) %>%
@@ -71,7 +69,7 @@ colmat <- function(nbreaks = 3, breakstyle = "quantile",
            "X" = rep(seq(from = 1, to = nbreaks, by = 1), times = nbreaks)) %>%
     mutate("UID" = row_number())
   # Use plotLeg if you want a preview of the legend
-  if (plotLeg) {
+  if (plotLeg | saveLeg) {
     p <- ggplot(col.matrix.plot, aes((X*2)/10, (Y*2)/10, fill = HEXCode)) +
       geom_raster() +
       scale_fill_identity() +
@@ -86,6 +84,8 @@ colmat <- function(nbreaks = 3, breakstyle = "quantile",
             axis.title.y = element_text(angle = 90, hjust = 0.5)) +
       xlab(bquote(.(xlab) ~  symbol("\256"))) +
       ylab(bquote(.(ylab) ~  symbol("\256")))
+  }
+  if (plotLeg) {
     print(p)
   }
   seqs <- seq(0, 100, (100 / nbreaks))
